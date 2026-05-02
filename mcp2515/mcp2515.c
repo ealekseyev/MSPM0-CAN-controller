@@ -236,9 +236,11 @@ uint8_t mcp2515_init(SPI_Regs *spi) {
     mcp2515_write_register(MCP2515_CANCTRL, MCP2515_CANSTAT_OPMOD_NORMAL);
 
     uint8_t mode;
+    uint32_t timeout = 100000;
     do {
         mode = mcp2515_read_register(MCP2515_CANSTAT);
-    } while ((mode & 0xE0) != 0x00); // wait till it is in normal mode
+        if (--timeout == 0) return MCP2515_CONFIG_NORMAL_ERROR;
+    } while ((mode & 0xE0) != 0x00);
 
     // enable interrupt controller for incoming can frames
     NVIC_ClearPendingIRQ(SPI_PINS_INT_IRQN);
@@ -283,6 +285,8 @@ static mcp2515_tx_status_t _send_to_buf(mcp2515_txb_t txbn, const mcp2515_frame_
     memcpy(&buf[5], frame->data, frame->dlc);
 
     mcp2515_write_registers(TXB_REGS[txbn].sidh, buf, 5 + frame->dlc);
+    mcp2515_modify_register(TXB_REGS[txbn].ctrl,
+        MCP2515_TXBCTRL_ABTF | MCP2515_TXBCTRL_MLOA | MCP2515_TXBCTRL_TXERR, 0x00);
     mcp2515_modify_register(TXB_REGS[txbn].ctrl, MCP2515_TXBCTRL_TXREQ, MCP2515_TXBCTRL_TXREQ);
 
     uint8_t ctrl = mcp2515_read_register(TXB_REGS[txbn].ctrl);
@@ -313,10 +317,6 @@ mcp2515_tx_status_t mcp2515_write_frame(const mcp2515_frame_t *frame) {
     return result;
 }
 
-int mcp2515_read(mcp2515_frame_t *frame) {
-    return 0;
-}
-
 mcp2515_rx_status_t mcp2515_rxbuf_status(void) {
     uint8_t intf = mcp2515_read_register(MCP2515_CANINTF);
     if (intf & 0x01) return MCP2515_RX_BUF0; // RX0IF - message in RXB0
@@ -330,11 +330,13 @@ size_t mcp2515_available(void) {
 
 mcp2515_frame_t mcp2515_read_can(void) {
     mcp2515_frame_t frame = {0};
+    NVIC_DisableIRQ(SPI_PINS_INT_IRQN);
     mcp2515_frame_t *p = mcp2515_ring_peek(&msgbuf);
     if (p != NULL) {
         frame = *p;
         mcp2515_ring_advance(&msgbuf);
     }
+    NVIC_EnableIRQ(SPI_PINS_INT_IRQN);
     return frame;
 }
 
@@ -409,6 +411,8 @@ void mcp2515_service_rx(void) {
 
 void GROUP1_IRQHandler(void)
 {
-    DL_GPIO_clearInterruptStatus(GPIOB, SPI_PINS_MCP_INT_PIN);
-    mcp2515_service_rx();
+    uint32_t status = DL_GPIO_getEnabledInterruptStatus(GPIOB, SPI_PINS_MCP_INT_PIN);
+    DL_GPIO_clearInterruptStatus(GPIOB, status);
+    if (status & SPI_PINS_MCP_INT_PIN)
+        mcp2515_service_rx();
 }

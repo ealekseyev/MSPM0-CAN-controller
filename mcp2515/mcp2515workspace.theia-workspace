@@ -2,6 +2,12 @@
   "folders": [
     {
       "path": "file:///c%3A/Users/giant/workspace_ccstheia/CANController"
+    },
+    {
+      "path": "file:///c%3A/Users/giant/cmpe146labs/freertos_builds_LP_MSPM0G3507_release_ticlang"
+    },
+    {
+      "path": "file:///c%3A/Users/giant/cmpe146labs/posix_demo_LP_MSPM0G3507_freertos_ticlang"
     }
   ],
   "settings": {}

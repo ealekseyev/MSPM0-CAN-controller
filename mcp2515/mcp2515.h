@@ -59,7 +59,6 @@ void mcp2515_reset();
 void mcp2515_set_bitrate(mcp2515_speed_t can_speed, mcp2515_clk_t crystal_mhz);
 uint8_t mcp2515_init(SPI_Regs *spi);
 mcp2515_tx_status_t mcp2515_write_frame(const mcp2515_frame_t *frame);
-int mcp2515_read(mcp2515_frame_t *frame);
 mcp2515_rx_status_t mcp2515_rxbuf_status(void);
 size_t              mcp2515_available(void);
 mcp2515_frame_t     mcp2515_read_can(void);
