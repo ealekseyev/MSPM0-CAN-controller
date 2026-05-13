@@ -12,7 +12,7 @@
 #include "mcp2515_errors.h"
 
 #ifndef MCP2515_RING_BUFFER_SIZE
-#define MCP2515_RING_BUFFER_SIZE 50
+#define MCP2515_RING_BUFFER_SIZE 200
 #endif
 
 typedef struct {
