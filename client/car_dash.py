@@ -1,25 +1,6 @@
-#!/usr/bin/env python3
-"""BMW E90 CAN Dashboard - Real-time vehicle status display.
-
-Reads CAN frames from ESP32 serial output, maintains a register matrix of all
-seen CAN IDs, and displays interpreted vehicle state with curses.
-
-Implements parsing logic from CarControl.cpp, ClimateControl.cpp, and WebServer.cpp.
-
-Supported frame formats:
-  RX: 0xXXX [N] byte1 byte2 ...
-  0xXXX [N] byte1 byte2 ...
-  RX: 0xXXX Data: byte1 byte2 ...
-
-Dependencies:
-    pip install pyserial
-    pip install windows-curses  # Windows only
-
-Usage:
-    python car_dashboard.py COM3
-    python car_dashboard.py COM3 -b 115200
-    python car_dashboard.py --replay log.txt
-    python car_dashboard.py COM3 --simple
+"""
+how to launch:
+python car_dashboard.py (com port here)
 """
 
 import argparse
@@ -35,7 +16,6 @@ except ImportError:
     CURSES_AVAILABLE = False
 
 
-# ─── Vehicle State ──────────────────────────────────────────────────────────────
 
 class VehicleState:
     def __init__(self):
@@ -175,7 +155,7 @@ class VehicleState:
         return (self.engine_rpm * self.torque) / 9549.2965855
 
 
-# ─── CAN Frame Parser ───────────────────────────────────────────────────────────
+#actual can frame parser here:
 
 def parse_line(line: str):
     """Parse a CAN frame line. Returns (can_id_int, data_list) or (None, None)."""

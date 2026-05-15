@@ -10,7 +10,7 @@ static mcp2515_timing_t bitrate_prescaler;
 static mcp2515_ring_t msgbuf;
 
 
-/*              RING BUFFER HELPERS              */
+// ring buffer helpers
 
 void mcp2515_ring_init(mcp2515_ring_t *r) {
     r->head = 0;
@@ -146,7 +146,7 @@ static void mcp2515_write_registers(uint8_t addr, const uint8_t *in, size_t len)
     _spi_write(buf, 2 + len);
 }
 
-/*              HIGH LEVEL FUNCTIONS            */
+// high level funcitons
 
 void mcp2515_reset() {
     uint8_t reset_cmd = MCP2515_SPI_RESET;
